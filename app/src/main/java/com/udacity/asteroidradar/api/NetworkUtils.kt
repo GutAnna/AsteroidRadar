@@ -1,13 +1,19 @@
 package com.udacity.asteroidradar.api
 
+import com.squareup.moshi.Json
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.database.DatabaseAsteroids
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<Asteroid> {
+data class NetworkAsteroids(
+    val asteroids: ArrayList<Asteroid>
+)
+
+fun parseAsteroidsJsonResult(jsonResult: JSONObject): NetworkAsteroids {
     val nearEarthObjectsJson = jsonResult.getJSONObject("near_earth_objects")
 
     val asteroidList = ArrayList<Asteroid>()
@@ -41,7 +47,7 @@ fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<Asteroid> {
         }
     }
 
-    return asteroidList
+    return NetworkAsteroids(asteroidList)
 }
 
 private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
@@ -56,4 +62,21 @@ private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
     }
 
     return formattedDateList
+}
+
+
+
+fun NetworkAsteroids.asDatabaseModel(): List<DatabaseAsteroids> {
+    return asteroids.map {
+        DatabaseAsteroids(
+            id = it.id,
+            codename = it.codename,
+            closeApproachDate = it.closeApproachDate,
+            absoluteMagnitude = it.absoluteMagnitude,
+            estimatedDiameter = it.estimatedDiameter,
+            relativeVelocity = it.relativeVelocity,
+            distanceFromEarth = it.distanceFromEarth,
+            isPotentiallyHazardous = it.isPotentiallyHazardous
+        )
+    }
 }
