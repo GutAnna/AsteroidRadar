@@ -10,13 +10,9 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-
-//private val moshi = Moshi.Builder()
-//    .add(KotlinJsonAdapterFactory())
-//    .build()
-
 private val client = OkHttpClient.Builder()
     .addInterceptor(ApiKeyInterceptor())
+    //.addInterceptor(ChuckerInterceptor(context))
     .build()
 
 private val retrofit = Retrofit.Builder()

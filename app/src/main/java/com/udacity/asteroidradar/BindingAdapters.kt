@@ -57,5 +57,15 @@ fun bindRecyclerView(
 
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?) {
-    Picasso.get().load(imgUrl).into(imgView);
+    Picasso.get()
+        .load(imgUrl)
+        .placeholder(R.drawable.aurora_kwon_960)
+        .error(R.drawable.aurora_kwon_960)
+        .into(imgView)
 }
+
+@BindingAdapter("pictureOfTheDayTitle")
+fun bindPictureOfTheDayTitle(textView: TextView, title: String?) {
+    textView.text = title ?: ""
+}
+
