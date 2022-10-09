@@ -1,8 +1,14 @@
 package com.udacity.asteroidradar.network
 
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.database.DatabaseAsteroids
+import com.udacity.asteroidradar.domain.PictureOfDay
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -79,3 +85,15 @@ fun NetworkAsteroids.asDatabaseModel(): List<DatabaseAsteroids> {
         )
     }
 }
+
+fun parsePicture(jsonResult: JSONObject): PictureOfDay? {
+    val moshi = Moshi.Builder()
+        .addLast(KotlinJsonAdapterFactory())
+        .build()
+    val jsonAdapter: JsonAdapter<PictureOfDay> = moshi.adapter(
+        PictureOfDay::class.java
+    )
+    return jsonAdapter.fromJson(jsonResult.toString())
+}
+
+

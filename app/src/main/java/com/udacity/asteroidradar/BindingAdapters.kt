@@ -1,9 +1,12 @@
 package com.udacity.asteroidradar
 
+import android.icu.number.NumberFormatter.with
+import android.icu.number.NumberRangeFormatter.with
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.util.AsteroidAdapter
 
@@ -44,8 +47,15 @@ fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
 }
 
 @BindingAdapter("listData")
-fun bindRecyclerView(recyclerView: RecyclerView,
-                     data: List<Asteroid>?) {
+fun bindRecyclerView(
+    recyclerView: RecyclerView,
+    data: List<Asteroid>?
+) {
     val adapter = recyclerView.adapter as AsteroidAdapter
     adapter.submitList(data)
+}
+
+@BindingAdapter("imageUrl")
+fun bindImage(imgView: ImageView, imgUrl: String?) {
+    Picasso.get().load(imgUrl).into(imgView);
 }

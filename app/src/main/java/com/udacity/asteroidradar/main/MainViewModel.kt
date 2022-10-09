@@ -7,6 +7,7 @@ import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.domain.Asteroid
+import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -20,7 +21,10 @@ import java.util.concurrent.TimeUnit
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val asteroidRepository = AsteroidRepository(getDatabase(application))
-    // val asteroidlist = asteroidRepository.asteroids
+
+    private var _pictureOfDay: LiveData<PictureOfDay> = MutableLiveData()
+    val pictureOfDay: LiveData<PictureOfDay>
+        get() = _pictureOfDay
 
     private var _asteroidlist: MutableLiveData<List<Asteroid>> = MutableLiveData()
     val asteroidlist: LiveData<List<Asteroid>>
@@ -33,6 +37,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         refreshDataFromRepository()
         fetchAsteroidsData()
+        fetchPictureOfTheDayData()
     }
 
     private fun refreshDataFromRepository() {
@@ -56,6 +61,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun fetchAsteroidsData(startDate: String = "", endDate: String = startDate) {
         viewModelScope.launch {
             _asteroidlist.value = asteroidRepository.getAsteroids(startDate, endDate)
+        }
+    }
+
+    private fun fetchPictureOfTheDayData() {
+        viewModelScope.launch {
+            _pictureOfDay = asteroidRepository.getPictureOfTheDay()
+            Log.e("AsteroidRadar",_pictureOfDay.toString())
         }
     }
 

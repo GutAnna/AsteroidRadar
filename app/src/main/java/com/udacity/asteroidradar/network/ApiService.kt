@@ -32,6 +32,9 @@ interface ApiService {
         @Query("start_date") startDate: String = "",
         @Query("end_date") endDate: String = ""
     ): String
+
+    @GET("planetary/apod")
+    suspend fun getPictureOfTheDay(): String
 }
 
 object Api {
