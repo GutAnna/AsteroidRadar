@@ -2,22 +2,18 @@ package com.udacity.asteroidradar.main
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.*
-import com.udacity.asteroidradar.Constants
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.domain.Asteroid
+import com.udacity.asteroidradar.domain.DateConverter.getDateFromToday
+import com.udacity.asteroidradar.domain.DateConverter.getToday
 import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.time.Clock
-import java.time.DayOfWeek
-import java.time.Instant
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val asteroidRepository = AsteroidRepository(getDatabase(application))
@@ -74,10 +70,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun onMenuItemSelected(itemId: Int) {
         when (itemId) {
             R.id.show_today_asteroids -> {
-                fetchAsteroidsData(startDate = getDateFromToday(0))
+                fetchAsteroidsData(startDate = getToday())
             }
             R.id.show_week_asteroids -> {
-                fetchAsteroidsData(startDate = getDateFromToday(0), endDate = getDateFromToday(7))
+                fetchAsteroidsData(startDate = getToday(), endDate = getDateFromToday(7))
             }
             R.id.show_saved_asteroids -> {
                 fetchAsteroidsData("", "")
@@ -85,8 +81,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun getDateFromToday(count: Long): String {
-        val date = LocalDate.now().plusDays(count)
-        return date.format(DateTimeFormatter.ofPattern(Constants.API_QUERY_DATE_FORMAT))
-    }
+
 }

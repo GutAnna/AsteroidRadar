@@ -14,6 +14,12 @@ interface AsteroidDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll (asteroids: List<DatabaseAsteroids>)
+
+    @Query("delete from Databaseasteroids WHERE closeApproachDate < :date")
+    fun deleteOldData(date: String)
+
+    @Query("SELECT COUNT(*) FROM Databaseasteroids")
+    fun getCountRows(): Int
 }
 
 @Database(entities = [DatabaseAsteroids::class], version = 1, exportSchema = false)

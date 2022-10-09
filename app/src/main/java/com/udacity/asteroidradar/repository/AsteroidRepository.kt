@@ -4,10 +4,10 @@ package com.udacity.asteroidradar.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import com.squareup.moshi.JsonReader
 import com.udacity.asteroidradar.database.AsteroidsDatabase
 import com.udacity.asteroidradar.database.asDomainModel
 import com.udacity.asteroidradar.domain.Asteroid
+import com.udacity.asteroidradar.domain.DateConverter.getToday
 import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.network.Api
 import com.udacity.asteroidradar.network.asDatabaseModel
@@ -21,10 +21,19 @@ class AsteroidRepository(private val database: AsteroidsDatabase) {
 
     suspend fun refreshAsteroids() {
         withContext(Dispatchers.IO) {
-            val response = Api.retrofitService.getResponse()
+            val dataSize = database.asteroidDao.getCountRows()
+
+            val response = if (dataSize == 0) Api.retrofitService.getResponse()
+            else Api.retrofitService.getResponse(getToday())
 
             val asteroidList = parseAsteroidsJsonResult(JSONObject(response))
             database.asteroidDao.insertAll(asteroidList.asDatabaseModel())
+        }
+    }
+
+    suspend fun deleteOldAsteroids() {
+        withContext(Dispatchers.IO) {
+            database.asteroidDao.deleteOldData(getToday())
         }
     }
 
@@ -48,7 +57,6 @@ class AsteroidRepository(private val database: AsteroidsDatabase) {
             Log.e("AsteroidRadar", e.stackTraceToString())
         }
     }
-
 }
 
 
