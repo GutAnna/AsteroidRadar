@@ -3,14 +3,28 @@ package com.udacity.asteroidradar.main
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.Clock
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val asteroidRepository = AsteroidRepository(getDatabase(application))
-    val asteroidlist = asteroidRepository.asteroids
+    // val asteroidlist = asteroidRepository.asteroids
+
+    private var _asteroidlist: MutableLiveData<List<Asteroid>> = MutableLiveData()
+    val asteroidlist: LiveData<List<Asteroid>>
+        get() = _asteroidlist
 
     private val _navigateToDetail = MutableLiveData<Asteroid>()
     val navigateToDetail
@@ -18,16 +32,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         refreshDataFromRepository()
+        fetchAsteroidsData()
     }
 
     private fun refreshDataFromRepository() {
         viewModelScope.launch {
-
             try {
                 asteroidRepository.refreshAsteroids()
-            } catch (e: Exception) {
-
-
+            } catch (_: Exception) {
+                Log.i("Asteroid Radar", "refreshAsteroids failed")
             }
         }
     }
@@ -40,13 +53,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _navigateToDetail.value = null
     }
 
-    class Factory(val app: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return MainViewModel(app) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewmodel")
+    private fun fetchAsteroidsData(startDate: String = "", endDate: String = startDate) {
+        viewModelScope.launch {
+            _asteroidlist.value = asteroidRepository.getAsteroids(startDate, endDate)
         }
+    }
+
+    fun onMenuItemSelected(itemId: Int) {
+        when (itemId) {
+            R.id.show_today_asteroids -> {
+                fetchAsteroidsData(startDate = getDateFromToday(0))
+            }
+            R.id.show_week_asteroids -> {
+                fetchAsteroidsData(startDate = getDateFromToday(0), endDate = getDateFromToday(7))
+            }
+            R.id.show_saved_asteroids -> {
+                fetchAsteroidsData("", "")
+            }
+        }
+    }
+
+    private fun getDateFromToday(count: Long): String {
+        val date = LocalDate.now().plusDays(count)
+        return date.format(DateTimeFormatter.ofPattern(Constants.API_QUERY_DATE_FORMAT))
     }
 }
